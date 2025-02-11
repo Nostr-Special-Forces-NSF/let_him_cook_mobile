@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:dart_nostr/dart_nostr.dart';
-import 'package:let_him_cook/src/features/recipes/recipe.dart';
 import 'package:let_him_cook/src/services/nostr_service.dart';
 import 'package:logger/logger.dart';
 
@@ -29,16 +28,9 @@ class RecipeRepository {
   Stream<List<NostrEvent>> get nostrEventStream =>
       _eventStreamController.stream;
 
-  // Convert raw Nostr events to domain Recipe objects
-  List<Recipe> _mapNostrEventsToRecipes(List<NostrEvent> events) {
-    return events.map((e) {
-      return e.toRecipe();
-    }).toList();
-  }
-
   // Expose a stream of Recipe lists
-  Stream<List<Recipe>> get recipeStream {
-    return nostrEventStream.map(_mapNostrEventsToRecipes);
+  Stream<List<NostrEvent>> get recipeStream {
+    return nostrEventStream;
   }
 
   void dispose() {

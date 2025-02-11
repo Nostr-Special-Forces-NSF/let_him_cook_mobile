@@ -1,4 +1,4 @@
-# let_him_cook
+# Let Him Cook (mobile)
 
 A new Flutter project.
 
@@ -27,4 +27,3 @@ the `lib/src/localization` directory.
 
 To support additional languages, please visit the tutorial on
 [Internationalizing Flutter apps](https://flutter.dev/to/internationalization).
-# let_him_cook_mobile

@@ -44,7 +44,10 @@ extension RecipeEvent on NostrEvent {
   String? get summary => _getTagValue('summary');
 
   List<String> get ingredients => _getTags('ingredient');
-  List<String> get directions => content!.split('\n');
+  List<String> get directions => content!
+      .replaceAll('\n\n','\n')
+      .replaceAll(RegExp(r'^\d+\.\s*', multiLine: true), '')
+      .split('\n');
   List<String> get categories => _getTags('t');
 
   String? _getTagValue(String key) {

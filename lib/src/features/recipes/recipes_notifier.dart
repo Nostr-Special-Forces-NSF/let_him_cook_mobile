@@ -1,15 +1,15 @@
 import 'dart:async';
 
+import 'package:dart_nostr/dart_nostr.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:let_him_cook/src/features/recipes/providers.dart';
-import 'package:let_him_cook/src/features/recipes/recipe.dart';
 
-class RecipesNotifier extends AsyncNotifier<List<Recipe>> {
-  StreamSubscription<List<Recipe>>? _subscription;
+class RecipesNotifier extends AsyncNotifier<List<NostrEvent>> {
+  StreamSubscription<List<NostrEvent>>? _subscription;
 
   // We’ll read the repository from the provider in build()
   @override
-  Future<List<Recipe>> build() async {
+  Future<List<NostrEvent>> build() async {
     state = const AsyncLoading();
 
     final repository = ref.watch(recipeRepositoryProvider);
@@ -32,6 +32,6 @@ class RecipesNotifier extends AsyncNotifier<List<Recipe>> {
 
 // The provider that exposes our Recipe stream as an AsyncValue
 final recipesProvider =
-    AsyncNotifierProvider<RecipesNotifier, List<Recipe>>(
+    AsyncNotifierProvider<RecipesNotifier, List<NostrEvent>>(
   RecipesNotifier.new,
 );

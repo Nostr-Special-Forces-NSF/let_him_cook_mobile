@@ -1,8 +1,10 @@
+import 'package:dart_nostr/dart_nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:let_him_cook/src/features/recipes/recipe.dart';
+import 'package:let_him_cook/src/features/recipes/recipe_edit_screen.dart';
 
 class RecipeDetailView extends StatelessWidget {
-  final Recipe recipe;
+  final NostrEvent recipe;
 
   const RecipeDetailView({super.key, required this.recipe});
 
@@ -38,7 +40,12 @@ class RecipeDetailView extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                // TODO: Navigate to edit screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => RecipeEditScreen(recipe: recipe),
+            ),
+          );
               },
               child: const Text(
                 'EDIT',
@@ -90,7 +97,7 @@ class RecipeDetailView extends StatelessWidget {
         AspectRatio(
           aspectRatio: 16 / 9,
           child: Image.network(
-            recipe.imageUrl,
+            recipe.image,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return const Center(child: Icon(Icons.broken_image));
@@ -140,11 +147,11 @@ class RecipeDetailView extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Row(
+                  const Row(
                     children: [
-                      const Icon(Icons.thumb_up, size: 16),
-                      const SizedBox(width: 4),
-                      Text('${recipe.likes}'),
+                      Icon(Icons.thumb_up, size: 16),
+                      SizedBox(width: 4),
+                      Text('0'),
                     ],
                   ),
                   const SizedBox(width: 16),
@@ -152,7 +159,7 @@ class RecipeDetailView extends StatelessWidget {
                     children: [
                       Icon(Icons.bolt, size: 16, color: Colors.yellow[700]),
                       const SizedBox(width: 4),
-                      Text('${recipe.zaps}'),
+                      const Text('0'),
                     ],
                   ),
                 ],

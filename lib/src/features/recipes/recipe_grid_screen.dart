@@ -1,3 +1,4 @@
+import 'package:dart_nostr/dart_nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:let_him_cook/src/features/recipes/recipe.dart';
@@ -38,7 +39,7 @@ class RecipeGridScreen extends ConsumerWidget {
 }
 
 class RecipeCard extends StatelessWidget {
-  final Recipe recipe;
+  final NostrEvent recipe;
   const RecipeCard({super.key, required this.recipe});
 
   @override
@@ -61,7 +62,7 @@ class RecipeCard extends StatelessWidget {
             AspectRatio(
               aspectRatio: 16 / 9,
               child: Image.network(
-                recipe.imageUrl,
+                recipe.image,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return const Center(child: Icon(Icons.broken_image));
@@ -88,7 +89,7 @@ class RecipeCard extends StatelessWidget {
                   // Likes
                   const Icon(Icons.thumb_up, size: 16, color: Colors.grey),
                   const SizedBox(width: 4),
-                  Text('${recipe.likes}'),
+                  const Text('0'),
                   const SizedBox(width: 16),
                   // Zaps (Lightning Bolt icon)
                   Icon(
@@ -97,7 +98,7 @@ class RecipeCard extends StatelessWidget {
                     color: Colors.yellow[700],
                   ),
                   const SizedBox(width: 4),
-                  Text('${recipe.zaps}'),
+                  const Text('0'),
                 ],
               ),
             ),
