@@ -40,12 +40,12 @@ class RecipeDetailView extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => RecipeEditScreen(recipe: recipe),
-            ),
-          );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => RecipeEditScreen(recipe: recipe),
+                  ),
+                );
               },
               child: const Text(
                 'EDIT',

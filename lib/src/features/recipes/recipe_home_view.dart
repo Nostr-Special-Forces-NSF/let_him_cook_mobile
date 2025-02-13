@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:let_him_cook/src/features/import/recipe_import_screen.dart';
 import 'package:let_him_cook/src/features/recipes/recipe_grid_screen.dart';
 import 'package:let_him_cook/src/settings/settings_view.dart';
 
@@ -21,6 +22,17 @@ class RecipeHomeView extends StatelessWidget {
               // to the app after it has been killed while running in the
               // background, the navigation stack is restored.
               Navigator.restorablePushNamed(context, SettingsView.routeName);
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.file_download),
+            onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const RecipeImportScreen(),
+                  ),
+                );
             },
           ),
         ],

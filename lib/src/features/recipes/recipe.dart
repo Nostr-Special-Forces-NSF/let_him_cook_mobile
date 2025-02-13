@@ -45,10 +45,14 @@ extension RecipeEvent on NostrEvent {
 
   List<String> get ingredients => _getTags('ingredient');
   List<String> get directions => content!
-      .replaceAll('\n\n','\n')
+      .replaceAll('\n\n', '\n')
       .replaceAll(RegExp(r'^\d+\.\s*', multiLine: true), '')
       .split('\n');
   List<String> get categories => _getTags('t');
+
+  List<String> get images => _getTags('image');
+
+  Map<String, String> get relatedRecipes => {};
 
   String? _getTagValue(String key) {
     final tag = tags?.firstWhere((t) => t[0] == key, orElse: () => []);

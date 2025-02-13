@@ -17,6 +17,12 @@ class RecipeEditScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final editState = ref.watch(recipeEditProvider(recipe));
 
+    final titleController = TextEditingController();
+    final summaryController = TextEditingController();
+    final prepController = TextEditingController();
+    final cookController = TextEditingController();
+    final servingsController = TextEditingController();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(recipe == null ? 'Create Recipe' : 'Edit Recipe'),
@@ -46,6 +52,7 @@ class RecipeEditScreen extends ConsumerWidget {
               label: 'Title*',
               hint: 'Unique recipe title',
               value: editState.title,
+              controller: titleController,
               onChanged: (val) => ref
                   .read(recipeEditProvider(recipe).notifier)
                   .updateTitle(val),
@@ -64,6 +71,7 @@ class RecipeEditScreen extends ConsumerWidget {
               label: 'Brief Summary',
               hint: 'A short description of the dish',
               value: editState.summary,
+              controller: summaryController,
               maxLines: 3,
               onChanged: (val) => ref
                   .read(recipeEditProvider(recipe).notifier)
@@ -84,6 +92,7 @@ class RecipeEditScreen extends ConsumerWidget {
               label: 'Prep Time',
               hint: 'e.g., 20 min',
               value: editState.prepTime,
+              controller: prepController,
               onChanged: (val) => ref
                   .read(recipeEditProvider(recipe).notifier)
                   .updatePrepTime(val),
@@ -92,6 +101,7 @@ class RecipeEditScreen extends ConsumerWidget {
               label: 'Cook Time',
               hint: 'e.g., 1 hour',
               value: editState.cookTime,
+              controller: cookController,
               onChanged: (val) => ref
                   .read(recipeEditProvider(recipe).notifier)
                   .updateCookTime(val),
@@ -100,18 +110,23 @@ class RecipeEditScreen extends ConsumerWidget {
               label: 'Servings',
               hint: 'e.g., 4 persons',
               value: editState.servings,
+              controller: servingsController,
               onChanged: (val) => ref
                   .read(recipeEditProvider(recipe).notifier)
                   .updateServings(val),
             ),
             const SizedBox(height: 16),
             TupleComboBox(
-              selectedItems: editState.ingredients,
+              selectedItems: editState.ingredients.map((i) {
+                return MapEntry(i, i);
+              }).toList(),
               amountPlaceholder: 'Quantity (e.g., 1 cup)',
               itemPlaceholder: 'Ingredient (e.g., flour)',
               onChanged: (ingredients) => ref
                   .read(recipeEditProvider(recipe).notifier)
-                  .updateIngredients(ingredients),
+                  .updateIngredients(ingredients.map((l) {
+                    return l.value;
+                  }).toList()),
             ),
             const SizedBox(height: 16),
             MarkdownEditor(
@@ -152,9 +167,11 @@ class RecipeEditScreen extends ConsumerWidget {
     required String label,
     required String hint,
     required String value,
+    required TextEditingController controller,
     int maxLines = 1,
     required Function(String) onChanged,
   }) {
+    controller.text = value;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -167,6 +184,7 @@ class RecipeEditScreen extends ConsumerWidget {
           ),
           maxLines: maxLines,
           onChanged: onChanged,
+          controller: controller,
         ),
       ],
     );
