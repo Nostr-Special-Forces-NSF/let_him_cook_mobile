@@ -4,7 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:let_him_cook/src/app/app_theme.dart';
 
 import 'sample_feature/sample_item_details_view.dart';
-import 'features/recipes/recipe_home_view.dart';
+import 'features/home/screens/recipe_home_view.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
 

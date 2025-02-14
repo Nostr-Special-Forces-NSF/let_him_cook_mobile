@@ -61,7 +61,7 @@ extension RecipeEvent on NostrEvent {
 
   List<String> _getTags(String key) {
     final tagList = tags?.where((t) => t[0] == key).map((l) {
-      return '${l.length > 2 ? l[2] : ""} ${l[1]}';
+      return '${l.length > 2 ? l[2] : ""} ${l[1]}'.trim();
     });
     return tagList != null ? tagList.toList() : [];
   }

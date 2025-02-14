@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:let_him_cook/src/features/recipes/recipe_repository.dart';
+import 'package:let_him_cook/src/data/repositories/recipe_repository.dart';
 import 'package:let_him_cook/src/services/nostr_service.dart';
 
 final nostrServicerProvider = Provider<NostrService>((ref) {

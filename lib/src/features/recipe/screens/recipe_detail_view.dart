@@ -1,7 +1,7 @@
-import 'package:dart_nostr/dart_nostr.dart';
 import 'package:flutter/material.dart';
-import 'package:let_him_cook/src/features/recipes/recipe.dart';
-import 'package:let_him_cook/src/features/recipes/recipe_edit_screen.dart';
+import 'package:dart_nostr/dart_nostr.dart';
+import 'package:let_him_cook/src/features/edit/screens/recipe_edit_screen.dart';
+import 'package:let_him_cook/src/data/models/recipe.dart';
 
 class RecipeDetailView extends StatelessWidget {
   final NostrEvent recipe;
@@ -87,23 +87,28 @@ class RecipeDetailView extends StatelessWidget {
     );
   }
 
-  // A widget that shows the main recipe image, rating (or likes/zaps),
-  // category, author, times, difficulty, etc.
+  // A widget that shows the main recipe images via CarouselView, plus metadata (title, categories, etc.).
   Widget _buildRecipeHeader(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Main image
+        // Main images in a carousel
         AspectRatio(
           aspectRatio: 16 / 9,
-          child: Image.network(
-            recipe.image,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return const Center(child: Icon(Icons.broken_image));
-            },
+          child: CarouselView(
+            itemExtent: double.infinity,
+            children: recipe.images.map((imageUrl) {
+              return Image.network(
+                imageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Center(child: Icon(Icons.broken_image));
+                },
+              );
+            }).toList(),
           ),
         ),
+
         // Title & metadata
         Padding(
           padding: const EdgeInsets.all(16.0),
@@ -118,6 +123,7 @@ class RecipeDetailView extends StatelessWidget {
                     ),
               ),
               const SizedBox(height: 8),
+
               // Category, e.g. "Cakes, Desserts"
               if (recipe.categories.isNotEmpty) ...[
                 Wrap(
@@ -127,17 +133,15 @@ class RecipeDetailView extends StatelessWidget {
                     return ActionChip(
                       label: Text(cat),
                       onPressed: () {
-                        // TODO: Show a filtered page or perform any action
-                        // e.g., Navigator.push(...) to a "FilteredRecipeScreen(cat)"
+                        // TODO: Filter by category
                       },
                     );
                   }).toList(),
                 ),
               ],
               const SizedBox(height: 16),
-              Text(
-                recipe.summary ?? '',
-              ),
+              // Summary
+              Text(recipe.summary ?? ''),
               const SizedBox(height: 4),
               // Author
               Text(
@@ -145,21 +149,22 @@ class RecipeDetailView extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 8),
-              Row(
+              // Likes & Zaps
+              const Row(
                 children: [
-                  const Row(
+                  Row(
                     children: [
                       Icon(Icons.thumb_up, size: 16),
                       SizedBox(width: 4),
                       Text('0'),
                     ],
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16),
                   Row(
                     children: [
-                      Icon(Icons.bolt, size: 16, color: Colors.yellow[700]),
-                      const SizedBox(width: 4),
-                      const Text('0'),
+                      Icon(Icons.bolt, size: 16, color: Colors.yellowAccent),
+                      SizedBox(width: 4),
+                      Text('0'),
                     ],
                   ),
                 ],
@@ -173,7 +178,7 @@ class RecipeDetailView extends StatelessWidget {
                   _infoChip(Icons.timer, 'Prep ${recipe.prepTime ?? ''}'),
                   _infoChip(Icons.schedule, 'Cook ${recipe.cookTime ?? ''}'),
                   _infoChip(Icons.people, 'Serves ${recipe.servings ?? ''}'),
-                  _infoChip(Icons.assignment_turned_in, 'Difficulty '),
+                  _infoChip(Icons.assignment_turned_in, 'Difficulty ??'),
                 ],
               ),
             ],

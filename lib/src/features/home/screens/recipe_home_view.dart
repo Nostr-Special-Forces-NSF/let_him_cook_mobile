@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:let_him_cook/src/features/import/recipe_import_screen.dart';
-import 'package:let_him_cook/src/features/recipes/recipe_grid_screen.dart';
+import 'package:let_him_cook/src/features/home/widgets/recipe_grid_screen.dart';
 import 'package:let_him_cook/src/settings/settings_view.dart';
 
-/// Displays a list of SampleItems.
 class RecipeHomeView extends StatelessWidget {
   const RecipeHomeView({super.key});
 

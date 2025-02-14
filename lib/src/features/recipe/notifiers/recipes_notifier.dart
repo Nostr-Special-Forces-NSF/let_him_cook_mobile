@@ -1,8 +1,7 @@
 import 'dart:async';
-
 import 'package:dart_nostr/dart_nostr.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:let_him_cook/src/features/recipes/providers.dart';
+import 'package:let_him_cook/src/shared/providers/providers.dart';
 
 class RecipesNotifier extends AsyncNotifier<List<NostrEvent>> {
   StreamSubscription<List<NostrEvent>>? _subscription;

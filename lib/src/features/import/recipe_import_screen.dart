@@ -259,7 +259,7 @@ class _RecipeImportScreenState extends ConsumerState<RecipeImportScreen> {
 
 class _NostrEventPreview extends StatelessWidget {
   final NostrEvent event;
-  const _NostrEventPreview({Key? key, required this.event}) : super(key: key);
+  const _NostrEventPreview({super.key, required this.event});
 
   @override
   Widget build(BuildContext context) {

@@ -1,9 +1,9 @@
 import 'package:dart_nostr/dart_nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:let_him_cook/src/features/recipes/recipe.dart';
-import 'package:let_him_cook/src/features/recipes/recipe_detail_view.dart';
-import 'package:let_him_cook/src/features/recipes/recipes_notifier.dart';
+import 'package:let_him_cook/src/data/models/recipe.dart';
+import 'package:let_him_cook/src/features/recipe/screens/recipe_detail_view.dart';
+import 'package:let_him_cook/src/features/recipe/notifiers/recipes_notifier.dart';
 
 class RecipeGridScreen extends ConsumerWidget {
   const RecipeGridScreen({super.key});

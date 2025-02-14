@@ -1,12 +1,12 @@
 import 'package:dart_nostr/dart_nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:let_him_cook/src/features/recipes/recipe_edit_provider.dart';
-import 'package:let_him_cook/src/features/recipes/widgets/images_combo_box.dart';
-import 'package:let_him_cook/src/features/recipes/widgets/markdown_editor.dart';
-import 'package:let_him_cook/src/features/recipes/widgets/recipe_combo_box.dart';
-import 'package:let_him_cook/src/features/recipes/widgets/tags_combo_box.dart';
-import 'package:let_him_cook/src/features/recipes/widgets/tuple_combo_box.dart';
+import 'package:let_him_cook/src/features/edit/providers/recipe_edit_provider.dart';
+import 'package:let_him_cook/src/features/recipe/widgets/images_combo_box.dart';
+import 'package:let_him_cook/src/features/recipe/widgets/markdown_editor.dart';
+import 'package:let_him_cook/src/features/recipe/widgets/recipe_combo_box.dart';
+import 'package:let_him_cook/src/features/recipe/widgets/tags_combo_box.dart';
+import 'package:let_him_cook/src/features/recipe/widgets/tuple_combo_box.dart';
 
 class RecipeEditScreen extends ConsumerWidget {
   final NostrEvent? recipe; // If null, create new recipe

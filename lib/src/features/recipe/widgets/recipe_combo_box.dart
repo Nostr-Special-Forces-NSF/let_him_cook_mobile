@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:let_him_cook/src/features/recipes/recipe.dart';
-import 'package:let_him_cook/src/features/recipes/recipes_notifier.dart';
+import 'package:let_him_cook/src/data/models/recipe.dart';
+import 'package:let_him_cook/src/features/recipe/notifiers/recipes_notifier.dart';
 
 /// A combo box that fetches the user's recipes, shows them in a dropdown,
 /// and stores a selected map of { recipeId -> recipeTitle }.

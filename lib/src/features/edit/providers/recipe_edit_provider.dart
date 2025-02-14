@@ -1,6 +1,6 @@
 import 'package:dart_nostr/dart_nostr.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:let_him_cook/src/features/recipes/recipe.dart';
+import 'package:let_him_cook/src/data/models/recipe.dart';
 
 class RecipeEditState {
   final String title;
