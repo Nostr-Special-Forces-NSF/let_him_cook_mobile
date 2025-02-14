@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:let_him_cook/src/features/import/recipe_import_screen.dart';
 import 'package:let_him_cook/src/features/home/widgets/recipe_grid_screen.dart';
+import 'package:let_him_cook/src/features/user/screens/user_screen.dart';
+import 'package:let_him_cook/src/features/user/widgets/user_avatar.dart';
 import 'package:let_him_cook/src/settings/settings_view.dart';
 
 class RecipeHomeView extends StatelessWidget {
@@ -26,14 +28,20 @@ class RecipeHomeView extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.file_download),
             onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const RecipeImportScreen(),
-                  ),
-                );
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const RecipeImportScreen(),
+                ),
+              );
             },
           ),
+          UserAvatar(() {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const UserScreen()),
+            );
+          }),
         ],
       ),
       body: const RecipeGridScreen(),

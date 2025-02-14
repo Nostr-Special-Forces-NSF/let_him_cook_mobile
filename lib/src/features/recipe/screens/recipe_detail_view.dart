@@ -95,8 +95,8 @@ class RecipeDetailView extends StatelessWidget {
         // Main images in a carousel
         AspectRatio(
           aspectRatio: 16 / 9,
-          child: CarouselView(
-            itemExtent: double.infinity,
+          child: CarouselView.weighted(
+            flexWeights: [3, 1],
             children: recipe.images.map((imageUrl) {
               return Image.network(
                 imageUrl,
