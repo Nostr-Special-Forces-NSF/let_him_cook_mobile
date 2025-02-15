@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:markdown_toolbar/markdown_toolbar.dart';
 
 class MarkdownEditor extends StatefulWidget {
   final String content;
@@ -18,13 +19,17 @@ class MarkdownEditor extends StatefulWidget {
 }
 
 class _MarkdownEditorState extends State<MarkdownEditor> {
-  late TextEditingController _controller;
   bool _preview = false;
+  final TextEditingController _controller =
+      TextEditingController(); // Declare the TextEditingController
+  late final FocusNode _focusNode; // Declare the FocusNode
 
   @override
   void initState() {
+    _controller
+        .addListener(() => setState(() {})); // Update the text when typing
+    _focusNode = FocusNode(); // Assign a FocusNode
     super.initState();
-    _controller = TextEditingController(text: widget.content);
   }
 
   @override
@@ -58,7 +63,8 @@ class _MarkdownEditorState extends State<MarkdownEditor> {
 
     _controller.value = TextEditingValue(
       text: newText,
-      selection: TextSelection.collapsed(offset: start + before.length + selectedText.length),
+      selection: TextSelection.collapsed(
+          offset: start + before.length + selectedText.length),
     );
 
     widget.onChanged?.call(_controller.text);
@@ -86,47 +92,11 @@ class _MarkdownEditorState extends State<MarkdownEditor> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Toolbar
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.list),
-                tooltip: "Insert Steps",
-                onPressed: () => _insertText('\n## Directions\n1. Step 1\n2. Step 2\n\n'),
-              ),
-              IconButton(
-                icon: const Icon(Icons.title),
-                tooltip: "Header 1",
-                onPressed: () => _formatText(before: '# ', after: ''),
-              ),
-              IconButton(
-                icon: const Icon(Icons.format_bold),
-                tooltip: "Bold",
-                onPressed: () => _formatText(before: '**', after: '**'),
-              ),
-              IconButton(
-                icon: const Icon(Icons.format_italic),
-                tooltip: "Italic",
-                onPressed: () => _formatText(before: '*', after: '*'),
-              ),
-              IconButton(
-                icon: const Icon(Icons.format_quote),
-                tooltip: "Quote",
-                onPressed: () => _formatText(before: '> ', after: ''),
-              ),
-              IconButton(
-                icon: const Icon(Icons.format_list_bulleted),
-                tooltip: "List",
-                onPressed: () => _insertText('- Item\n- Item\n'),
-              ),
-              IconButton(
-                icon: Icon(_preview ? Icons.edit : Icons.preview),
-                tooltip: "Toggle Preview",
-                onPressed: _togglePreview,
-              ),
-            ],
-          ),
+        MarkdownToolbar(
+          useIncludedTextField:
+              false, // Because we want to use our own, set useIncludedTextField to false
+          controller: _controller, // Add the _controller
+          focusNode: _focusNode, // Add the _focusNode
         ),
         const SizedBox(height: 8),
         // Editor or Preview
@@ -142,6 +112,7 @@ class _MarkdownEditorState extends State<MarkdownEditor> {
               )
             : TextField(
                 controller: _controller,
+                focusNode: _focusNode, // Add the _focusNode
                 minLines: 6,
                 maxLines: null,
                 decoration: InputDecoration(
