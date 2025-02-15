@@ -26,7 +26,6 @@ class UserRepository {
     return pubKey;
   }
 
-  /// Fetch user profile (Kind 0) from your Nostr relay
   Future<UserProfile?> fetchUserProfile(String pubkey) async {
     final pkHex = Nostr.instance.services.bech32.decodeBech32(pubkey);
 

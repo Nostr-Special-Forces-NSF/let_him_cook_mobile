@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dart_nostr/dart_nostr.dart';
 import 'package:let_him_cook/src/features/edit/screens/recipe_edit_screen.dart';
 import 'package:let_him_cook/src/data/models/recipe.dart';
+import 'package:markdown_widget/markdown_widget.dart';
 
 class RecipeDetailView extends StatelessWidget {
   final NostrEvent recipe;
@@ -235,16 +236,7 @@ class RecipeDetailView extends StatelessWidget {
   Widget _buildDirectionsTab() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: ListView.builder(
-        itemCount: recipe.directions.length,
-        itemBuilder: (context, index) {
-          final step = recipe.directions[index];
-          return ListTile(
-            leading: CircleAvatar(child: Text('${index + 1}')),
-            title: Text(step),
-          );
-        },
-      ),
+      child: MarkdownWidget(data: recipe.content!)
     );
   }
 }
