@@ -1,9 +1,10 @@
-import 'package:dart_nostr/dart_nostr.dart';
 import 'package:html/parser.dart' as html;
 import 'dart:convert';
 
 class RecipeImporter {
-  NostrEvent convert(String htmlContent) {
+
+
+  Map<String, dynamic> convert(String htmlContent) {
     final schemaJsonString = _extractSchemaJson(htmlContent);
     if (schemaJsonString == null) {
       throw Exception(
@@ -19,8 +20,7 @@ class RecipeImporter {
       throw Exception('No "@type": "Recipe" node found in the JSON.');
     }
 
-    // 4) Convert to a NostrEvent.
-    return _convertSchemaOrgRecipeToNostrEvent(recipeObj);
+    return recipeObj;
   }
 
   String? _extractSchemaJson(String htmlContent) {
@@ -67,78 +67,4 @@ class RecipeImporter {
     return null;
   }
 
-  /// Convert the schema.org "Recipe" JSON into a minimal NostrEvent
-  /// ignoring "recipeInstructions" from the tags and putting them
-  /// as event content.
-  NostrEvent _convertSchemaOrgRecipeToNostrEvent(
-      Map<String, dynamic> recipeJson) {
-    String content = '';
-    List<List<String>> tags = [[]];
-
-    // For each JSON key, add a tag. Except for `recipeInstructions`.
-    // We'll store instructions in the event content.
-    for (final entry in recipeJson.entries) {
-      final key = entry.key;
-      final value = entry.value;
-
-      if (key == 'recipeInstructions') {
-        // Our rule: Put instructions in event.content, flattening to a single text block.
-        final instructions = _flattenInstructions(value);
-        content = instructions;
-      } else {
-        // Otherwise store as a tag: e.g. ['title', 'No-Knead Crusty White Bread']
-        // Obviously you'd want to sanitize or handle arrays vs strings, etc.
-        final stringValue = _stringify(value);
-        tags.add([key, stringValue]);
-      }
-    }
-    // Create a minimal NostrEvent. Typically we set `kind=35000` for recipes, etc.
-    final event = NostrEvent.fromPartialData(
-      kind: 35000,
-      content: content,
-      tags: tags,
-    );
-
-    // Possibly rename some keys or do more custom logic here
-    return event;
-  }
-
-  /// Flatten instructions which might be a string, list of strings, or list of objects.
-  /// Return a single text block with each step on its own line.
-  String _flattenInstructions(dynamic raw) {
-    if (raw is String) {
-      return raw;
-    } else if (raw is List) {
-      // Some recipes store instructions as an array of strings or array of objects
-      final lines = <String>[];
-      for (final item in raw) {
-        if (item is String) {
-          lines.add(_cleanLineNumbers(item));
-        } else if (item is Map && item['text'] is String) {
-          lines.add(_cleanLineNumbers(item['text']));
-        }
-      }
-      return lines.join('\n');
-    } else if (raw is Map && raw['text'] is String) {
-      // single object with text
-      return _cleanLineNumbers(raw['text']);
-    }
-    return '';
-  }
-
-  /// Optionally strip markdown line numbers like `1. Step`.
-  /// Adjust to your preference.
-  String _cleanLineNumbers(String text) {
-    return text.replaceAll(RegExp(r'^\d+\.\s*', multiLine: true), '');
-  }
-
-  /// Attempt to turn an object or array into a single string for the tag value
-  String _stringify(dynamic value) {
-    if (value == null) return '';
-    if (value is String) return value;
-    if (value is num) return value.toString();
-    if (value is bool) return value.toString();
-    // If it's a list or map, JSON-encode it
-    return json.encode(value);
-  }
 }

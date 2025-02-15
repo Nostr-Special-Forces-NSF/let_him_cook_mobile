@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:let_him_cook/src/data/models/bookmark.dart';
+import 'package:let_him_cook/src/data/models/bookmark_list.dart';
 import 'package:let_him_cook/src/data/models/user_profile.dart';
 import 'package:let_him_cook/src/data/repositories/user_repository.dart';
 
@@ -7,7 +7,7 @@ class UserState {
   final bool isLoading;
   final String? pubkey;
   final UserProfile? profile;
-  final List<Bookmark> bookmarks;
+  final List<BookmarkList> bookmarks;
   final String? error;
 
   UserState({
@@ -22,7 +22,7 @@ class UserState {
     bool? isLoading,
     String? pubkey,
     UserProfile? profile,
-    List<Bookmark>? bookmarks,
+    List<BookmarkList>? bookmarks,
     String? error,
   }) {
     return UserState(
@@ -60,14 +60,12 @@ class UserNotifier extends StateNotifier<UserState> {
   }
 
   /// Called when user taps "Log in with Signer App"
-  Future<void> login() async {
+  Future<void> login(String pubkey) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final pubkey = await _repository.loginWithSigner();
-      if (pubkey != null) {
-        state = state.copyWith(pubkey: pubkey);
-        await fetchProfileAndBookmarks(pubkey);
-      }
+      await _repository.login(pubkey);
+      state = state.copyWith(pubkey: pubkey);
+      await fetchProfileAndBookmarks(pubkey);
     } catch (e) {
       state = state.copyWith(error: e.toString());
     } finally {
@@ -79,8 +77,9 @@ class UserNotifier extends StateNotifier<UserState> {
   Future<void> fetchProfileAndBookmarks(String pubkey) async {
     try {
       final profile = await _repository.fetchUserProfile(pubkey);
-      final bookmarks = await _repository.fetchBookmarks(pubkey);
-      state = state.copyWith(profile: profile, bookmarks: bookmarks);
+      //final bookmarks = await _repository.fetchBookmarkListsAndItems(pubkey);
+      //state = state.copyWith(profile: profile, bookmarks: bookmarks);
+      state = state.copyWith(profile: profile);
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }

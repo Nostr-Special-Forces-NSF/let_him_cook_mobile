@@ -1,6 +1,8 @@
 class Bookmark {
-  final String id;
-  final String title;
+  final int kind;
+  final String pubkey;
+  final String identifier;
 
-  Bookmark({required this.id, required this.title});
+  Bookmark(
+      {required this.kind, required this.pubkey, required this.identifier});
 }
