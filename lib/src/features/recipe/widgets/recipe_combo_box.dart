@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:let_him_cook/src/data/models/recipe.dart';
+import 'package:let_him_cook/src/data/models/nostr_event.dart';
 import 'package:let_him_cook/src/features/recipe/notifiers/recipes_notifier.dart';
 
 /// A combo box that fetches the user's recipes, shows them in a dropdown,
@@ -92,12 +92,16 @@ class _RecipeComboBoxState extends ConsumerState<RecipeComboBox> {
               ...recipes.map((r) {
                 return DropdownMenuItem<String>(
                   value: r.id,
-                  child: Text(r.title.isNotEmpty ? r.title : 'Untitled Recipe'),
+                  child: Text(
+                    r.title.isNotEmpty ? r.title : 'Untitled Recipe',
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 );
               }),
             ];
 
             return DropdownButtonFormField<String>(
+              isExpanded: true,
               decoration: InputDecoration(
                 labelText: widget.placeholder,
                 border: const OutlineInputBorder(),
@@ -132,7 +136,8 @@ class _RecipeComboBoxState extends ConsumerState<RecipeComboBox> {
                   border: Border.all(color: Colors.grey.shade300),
                 ),
                 child: ListTile(
-                  title: Text(recipeTitle.isNotEmpty ? recipeTitle : 'Untitled Recipe'),
+                  title: Text(
+                      recipeTitle.isNotEmpty ? recipeTitle : 'Untitled Recipe'),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () => _removeItem(recipeId),

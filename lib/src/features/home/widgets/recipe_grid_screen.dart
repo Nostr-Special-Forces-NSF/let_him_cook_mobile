@@ -1,7 +1,7 @@
 import 'package:dart_nostr/dart_nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:let_him_cook/src/data/models/recipe.dart';
+import 'package:let_him_cook/src/data/models/nostr_event.dart';
 import 'package:let_him_cook/src/features/recipe/screens/recipe_detail_view.dart';
 import 'package:let_him_cook/src/features/recipe/notifiers/recipes_notifier.dart';
 
@@ -62,7 +62,7 @@ class RecipeCard extends StatelessWidget {
             AspectRatio(
               aspectRatio: 16 / 9,
               child: Image.network(
-                recipe.image,
+                recipe.images.isNotEmpty ? recipe.images[0] : '',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return const Center(child: Icon(Icons.broken_image));

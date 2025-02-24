@@ -1,84 +1,107 @@
-import 'package:dart_nostr/dart_nostr.dart';
-
 class Recipe {
   final String id;
   final String title;
-  final String imageUrl;
-  final List<String> ingredients;
-  final List<String> directions;
+  final String author;
+  List<String> cuisine;
   final List<String> categories;
-
-  String? summary;
-  String? author;
+  final Map<String, String> ingredients;
+  List<String> tools;
+  final List<String> images;
   String? prepTime;
   String? cookTime;
   String? servings;
+  Map<String, String> nutrition;
+  List<String> dietaryRestrictions;
+  String? summary;
+  List<String> tags;
 
-  final int likes;
-  final int zaps;
+  final List<String> directions;
+  final Map<String, String> relatedRecipes;
+
+
+  int likes;
+  int zaps;
+  final bool isPublishing;
 
   Recipe({
     required this.id,
     required this.title,
-    required this.imageUrl,
-    required this.ingredients,
-    required this.directions,
     required this.categories,
-    this.summary,
-    this.author,
-    this.cookTime,
+    required this.ingredients,
+    required this.images,
+    required this.directions,
+    required this.author,
+    required this.cuisine,
     this.prepTime,
+    this.cookTime,
     this.servings,
+    this.nutrition = const {},
+    this.dietaryRestrictions = const [],
+    this.summary,
+    this.tools = const [],
+    this.tags = const [],
+    this.relatedRecipes = const {},
     this.likes = 0,
     this.zaps = 0,
+    this.isPublishing = false,
   });
-}
 
-extension RecipeEvent on NostrEvent {
-  String get title => _getTagValue('title')!;
-  String get image => _getTagValue('image')!;
-  String? get prepTime => _getTagValue('prep_time');
-  String? get cookTime => _getTagValue('cook_time');
-  String? get servings => _getTagValue('servings');
-  String? get author => _getTagValue('author');
-  String? get summary => _getTagValue('summary');
-
-  List<String> get ingredients => _getTags('ingredient');
-  List<String> get directions => content!
-      .replaceAll('\n\n', '\n')
-      .replaceAll(RegExp(r'^\d+\.\s*', multiLine: true), '')
-      .split('\n');
-  List<String> get categories => _getTags('t');
-
-  List<String> get images => _getTags('image');
-
-  Map<String, String> get relatedRecipes => {};
-
-  String? _getTagValue(String key) {
-    final tag = tags?.firstWhere((t) => t[0] == key, orElse: () => []);
-    return (tag != null && tag.length > 1) ? tag[1] : null;
-  }
-
-  List<String> _getTags(String key) {
-    final tagList = tags?.where((t) => t[0] == key).map((l) {
-      return '${l.length > 2 ? l[2] : ""} ${l[1]}'.trim();
-    });
-    return tagList != null ? tagList.toList() : [];
-  }
-
-  Recipe toRecipe() {
+  Recipe copyWith({
+    String? id,
+    String? title,
+    String? author,
+    List<String>? cuisine,
+    List<String>? categories,
+    Map<String, String>? ingredients,
+    List<String>? tools,
+    List<String>? images,
+    String? prepTime,
+    String? cookTime,
+    String? servings,
+    Map<String, String>? nutrition,
+    List<String>? dietaryRestrictions,
+    String? summary,
+    List<String>? tags,
+    List<String>? directions,
+    Map<String, String>? relatedRecipes,
+    int? likes,
+    int? zaps,
+    bool? isPublishing,
+  }) {
     return Recipe(
-      id: id!,
-      title: title,
-      imageUrl: image,
-      ingredients: ingredients,
-      directions: directions,
-      categories: categories,
-      summary: summary,
-      author: author,
-      prepTime: prepTime,
-      cookTime: cookTime,
-      servings: servings,
+      id: id ?? this.id,
+      title: title ?? this.title,
+      author: author ?? this.author,
+      cuisine: cuisine ?? this.cuisine,
+      categories: categories ?? this.categories,
+      ingredients: ingredients ?? this.ingredients,
+      tools: tools ?? this.tools,
+      images: images ?? this.images,
+      prepTime: prepTime ?? this.prepTime,
+      cookTime: cookTime ?? this.cookTime,
+      servings: servings ?? this.servings,
+      nutrition: nutrition ?? this.nutrition,
+      dietaryRestrictions: dietaryRestrictions ?? this.dietaryRestrictions,
+      summary: summary ?? this.summary,
+      tags: tags ?? this.tags,
+      directions: directions ?? this.directions,
+      relatedRecipes: relatedRecipes ?? this.relatedRecipes,
+      likes: likes ?? this.likes,
+      zaps: zaps ?? this.zaps,
+      isPublishing: isPublishing ?? this.isPublishing,
     );
   }
+
+  Recipe.empty()
+      : this(
+          id: '',
+          title: '',
+          author: '',
+          cuisine: [],
+          categories: [],
+          images: [],
+          ingredients: {},
+          directions: [],
+          tools: [],
+        );
 }

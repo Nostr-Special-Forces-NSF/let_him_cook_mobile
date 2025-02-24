@@ -21,14 +21,14 @@ class MarkdownEditor extends StatefulWidget {
 class _MarkdownEditorState extends State<MarkdownEditor> {
   bool _preview = false;
   final TextEditingController _controller =
-      TextEditingController(); // Declare the TextEditingController
-  late final FocusNode _focusNode; // Declare the FocusNode
+      TextEditingController();
+  late final FocusNode _focusNode;
 
   @override
   void initState() {
     _controller
-        .addListener(() => setState(() {})); // Update the text when typing
-    _focusNode = FocusNode(); // Assign a FocusNode
+        .addListener(() => setState(() {}));
+    _focusNode = FocusNode();
     super.initState();
   }
 
@@ -53,7 +53,7 @@ class _MarkdownEditorState extends State<MarkdownEditor> {
     final start = selection.start;
     final end = selection.end;
 
-    if (start < 0 || end < 0) return; // no real selection
+    if (start < 0 || end < 0) return;
     final selectedText = text.substring(start, end);
     final newText = text.replaceRange(
       start,
@@ -86,6 +86,7 @@ class _MarkdownEditorState extends State<MarkdownEditor> {
 
   @override
   Widget build(BuildContext context) {
+	_controller.text = widget.content;
     final currentMarkdown = _controller.text;
 
     return Column(
@@ -95,8 +96,8 @@ class _MarkdownEditorState extends State<MarkdownEditor> {
         MarkdownToolbar(
           useIncludedTextField:
               false, // Because we want to use our own, set useIncludedTextField to false
-          controller: _controller, // Add the _controller
-          focusNode: _focusNode, // Add the _focusNode
+          controller: _controller,
+          focusNode: _focusNode,
         ),
         const SizedBox(height: 8),
         // Editor or Preview
@@ -112,9 +113,9 @@ class _MarkdownEditorState extends State<MarkdownEditor> {
               )
             : TextField(
                 controller: _controller,
-                focusNode: _focusNode, // Add the _focusNode
+                focusNode: _focusNode,
                 minLines: 6,
-                maxLines: null,
+                maxLines: 20,
                 decoration: InputDecoration(
                   hintText: widget.placeholder,
                   border: const OutlineInputBorder(),

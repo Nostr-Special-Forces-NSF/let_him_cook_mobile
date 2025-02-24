@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:dart_nostr/dart_nostr.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:let_him_cook/src/app/app_theme.dart';
+import 'package:let_him_cook/src/data/models/nostr_event.dart';
 import 'package:let_him_cook/src/features/edit/screens/recipe_edit_screen.dart';
-import 'package:let_him_cook/src/data/models/recipe.dart';
+import 'package:let_him_cook/src/features/recipe/widgets/nutritional_info_view.dart';
+import 'package:let_him_cook/src/features/user/notifiers/user_notifier.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 
-class RecipeDetailView extends StatelessWidget {
+class RecipeDetailView extends ConsumerWidget {
   final NostrEvent recipe;
 
   const RecipeDetailView({super.key, required this.recipe});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userState = ref.watch(userNotifierProvider);
+    final isLoggedIn = true; //userState.pubkey != null;
+
     return DefaultTabController(
       length: 2, // We have 2 tabs: Ingredients & Directions
       child: Scaffold(
@@ -19,7 +26,7 @@ class RecipeDetailView extends StatelessWidget {
             icon: const Icon(Icons.arrow_back),
             onPressed: () => Navigator.of(context).pop(),
           ),
-          title: Text(recipe.title),
+          title: Text('Recipe'),
           actions: [
             IconButton(
               icon: const Icon(Icons.shopping_cart),
@@ -35,23 +42,24 @@ class RecipeDetailView extends StatelessWidget {
             ),
             IconButton(
               icon: const Icon(Icons.favorite_border),
-              onPressed: () {
-                // TODO: Handle favorite/like logic
-              },
+              onPressed: isLoggedIn
+                  ? () {
+                      // TODO: Handle favorite/like logic
+                    }
+                  : null,
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => RecipeEditScreen(recipe: recipe),
-                  ),
-                );
-              },
-              child: const Text(
-                'EDIT',
-                style: TextStyle(color: Colors.white),
-              ),
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: isLoggedIn
+                  ? () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => RecipeEditScreen(recipe: recipe),
+                        ),
+                      );
+                    }
+                  : null,
             ),
           ],
         ),
@@ -93,24 +101,6 @@ class RecipeDetailView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Main images in a carousel
-        AspectRatio(
-          aspectRatio: 16 / 9,
-          child: CarouselView.weighted(
-            flexWeights: [3, 1],
-            children: recipe.images.map((imageUrl) {
-              return Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return const Center(child: Icon(Icons.broken_image));
-                },
-              );
-            }).toList(),
-          ),
-        ),
-
-        // Title & metadata
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -123,8 +113,63 @@ class RecipeDetailView extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
+              // Tags, e.g. "Cakes, Desserts"
+              if (recipe.hashTags.isNotEmpty) ...[
+                Wrap(
+                  spacing: 8.0,
+                  runSpacing: 4.0,
+                  children: recipe.hashTags.map((cat) {
+                    return ActionChip(
+                      label: Text(cat),
+                      onPressed: () {
+                        // TODO: Filter by category
+                      },
+                    );
+                  }).toList(),
+                ),
+              ],
+              const SizedBox(height: 16),
+              // Prep time, Cook time, Servings
+              buildInfoChipRow(
+                prepTime: recipe.prepTime,
+                cookTime: recipe.cookTime,
+                servings: recipe.servings,
+              ),
+            ],
+          ),
+        ),
+        // Main images in a carousel
+        AspectRatio(
+          aspectRatio: 16 / 9,
+          child: recipe.images.length > 1
+              ? CarouselView.weighted(
+                  flexWeights: [3, 1],
+                  children: recipe.images.map((imageUrl) {
+                    return Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Center(child: Icon(Icons.broken_image));
+                      },
+                    );
+                  }).toList(),
+                )
+              : Image.network(
+                  recipe.images.first,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Center(child: Icon(Icons.broken_image));
+                  },
+                ),
+        ),
 
+        // Title & metadata
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               // Category, e.g. "Cakes, Desserts"
               if (recipe.categories.isNotEmpty) ...[
                 Wrap(
@@ -143,13 +188,22 @@ class RecipeDetailView extends StatelessWidget {
               const SizedBox(height: 16),
               // Summary
               Text(recipe.summary ?? ''),
-              const SizedBox(height: 4),
+              const SizedBox(height: 16),
               // Author
-              Text(
-                recipe.author ?? '',
-                style: Theme.of(context).textTheme.bodySmall,
+              Row(
+                children: [
+                  CircleAvatar(),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      recipe.author,
+                      style: Theme.of(context).textTheme.bodySmall,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               // Likes & Zaps
               const Row(
                 children: [
@@ -170,17 +224,9 @@ class RecipeDetailView extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              // Prep time, Cook time, Servings, Difficulty
-              Wrap(
-                spacing: 8.0,
-                runSpacing: 4.0,
-                children: [
-                  _infoChip(Icons.timer, 'Prep ${recipe.prepTime ?? ''}'),
-                  _infoChip(Icons.schedule, 'Cook ${recipe.cookTime ?? ''}'),
-                  _infoChip(Icons.people, 'Serves ${recipe.servings ?? ''}'),
-                  _infoChip(Icons.assignment_turned_in, 'Difficulty ??'),
-                ],
+
+              NutritionalInfoView(
+                data: recipe.nutrition,
               ),
             ],
           ),
@@ -197,8 +243,81 @@ class RecipeDetailView extends StatelessWidget {
     );
   }
 
+  Widget buildInfoChipRow({
+    required String? prepTime,
+    required String? cookTime,
+    required String? servings,
+  }) {
+    // Build a list of column widgets for each non-empty value
+    final columns = <Widget>[];
+
+    if (prepTime != null && prepTime.isNotEmpty) {
+      columns.add(_buildInfoColumn('$prepTime minutes', 'Prep Time'));
+    }
+    if (cookTime != null && cookTime.isNotEmpty) {
+      columns.add(_buildInfoColumn('$cookTime minutes', 'Cook Time'));
+    }
+    if (servings != null && servings.isNotEmpty) {
+      columns.add(_buildInfoColumn(servings, 'Serves'));
+    }
+
+    // If no data present, return nothing
+    if (columns.isEmpty) {
+      return const SizedBox.shrink(); // or return Container()
+    }
+
+    // Otherwise, wrap them in a single "large chip" or card-like container
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withAlpha(64),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: columns,
+      ),
+    );
+  }
+
+  /// Helper method that returns a column with two rows:
+  /// 1) the value (e.g. "20 min")
+  /// 2) the label (e.g. "Cook Time")
+  Widget _buildInfoColumn(String value, String label) {
+    return Expanded(
+      // Each column expands evenly if you want them to share space
+      // or you can remove Expanded if you prefer them to be sized by content
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            value,
+            style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: LetHimCookTheme.darkPrimaryColor),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // Ingredients tab content
   Widget _buildIngredientsTab() {
+    List<String> ingredients = recipe.ingredients.entries
+        .map((entry) => '${entry.value} ${entry.key}')
+        .toList();
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -217,12 +336,12 @@ class RecipeDetailView extends StatelessWidget {
           // List of ingredients
           Expanded(
             child: ListView.builder(
-              itemCount: recipe.ingredients.length,
+              itemCount: ingredients.length,
               itemBuilder: (context, index) {
-                final ingredient = recipe.ingredients[index];
+                final ingredient = ingredients[index];
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: Text(ingredient),
+                  child: Text(ingredient!),
                 );
               },
             ),
@@ -235,8 +354,7 @@ class RecipeDetailView extends StatelessWidget {
   // Directions tab content
   Widget _buildDirectionsTab() {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: MarkdownWidget(data: recipe.content!)
-    );
+        padding: const EdgeInsets.all(16.0),
+        child: MarkdownWidget(data: recipe.content!));
   }
 }

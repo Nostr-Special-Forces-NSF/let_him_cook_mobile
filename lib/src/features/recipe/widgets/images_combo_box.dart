@@ -41,6 +41,34 @@ class _ImagesComboBoxState extends State<ImagesComboBox> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Text field for adding an image by URL
+        // Show current images (if any)
+        if (widget.images.isNotEmpty)
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: widget.images.length,
+            itemBuilder: (context, index) {
+              final imageUrl = widget.images[index];
+              return ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: Image.network(imageUrl, fit: BoxFit.cover,
+                      errorBuilder: (context, error, stack) {
+                    return const Icon(Icons.broken_image);
+                  }),
+                ),
+                title: Text(imageUrl,
+                    maxLines: 1, overflow: TextOverflow.ellipsis),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => widget.onImageRemoved?.call(index),
+                ),
+              );
+            },
+          ),
+        const SizedBox(height: 16),
         Row(
           children: [
             Expanded(
@@ -60,33 +88,6 @@ class _ImagesComboBoxState extends State<ImagesComboBox> {
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        // Show current images (if any)
-        if (widget.images.isNotEmpty)
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: widget.images.length,
-            itemBuilder: (context, index) {
-              final imageUrl = widget.images[index];
-              return ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: SizedBox(
-                  width: 60,
-                  height: 60,
-                  child: Image.network(imageUrl, fit: BoxFit.cover, errorBuilder:
-                      (context, error, stack) {
-                    return const Icon(Icons.broken_image);
-                  }),
-                ),
-                title: Text(imageUrl, maxLines: 1, overflow: TextOverflow.ellipsis),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => widget.onImageRemoved?.call(index),
-                ),
-              );
-            },
-          ),
       ],
     );
   }
