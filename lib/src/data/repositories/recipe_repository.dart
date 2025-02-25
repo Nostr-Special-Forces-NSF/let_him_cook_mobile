@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:dart_nostr/dart_nostr.dart';
+import 'package:let_him_cook/src/data/models/recipe.dart';
 import 'package:let_him_cook/src/services/nostr_service.dart';
 import 'package:logger/logger.dart';
 
@@ -37,5 +38,12 @@ class RecipeRepository {
     _subscription?.cancel();
     _eventStreamController.close();
     _events.clear();
+  }
+
+  Future<void> publishRecipe(Recipe recipe) async {
+
+    final recipeJson = recipe.toJson();
+    await _nostrService.signAndPublishEvent(recipeJson);
+
   }
 }

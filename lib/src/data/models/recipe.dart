@@ -104,4 +104,30 @@ class Recipe {
           directions: [],
           tools: [],
         );
+
+  Map<String, dynamic> toJson() {
+    return {
+      'kind': 35000,
+      'content' : directions.join('\n'),
+      'tags': [
+        ['d', title.replaceAll(' ', '-').toLowerCase()],
+        ['title', title],
+        ['alt', 'recipe:$title'],
+        ...cuisine.map((e) => ['cuisine', e]),
+        ...categories.map((e) => ['category', e]),
+        ...ingredients.entries.map((e) => ['ingredient', e.key, e.value]),
+        ...tools.map((e) => ['tool', e]),
+        ...images.map((e) => ['image', e]),
+        ['prep_time', prepTime],
+        ['cook_time', cookTime],
+        ['servings', servings],
+        ...nutrition.entries.map((e) => ['nutrition', e.key, e.value]),
+        ...dietaryRestrictions.map((e) => ['dietary_restrictions', e],),
+        ['summary', summary],
+        ...tags.map((e) => ['t', e],),
+        ...relatedRecipes.entries.map((e) => ['a', e.value]),
+      ], 
+    };
+  }
+
 }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:dart_nostr/dart_nostr.dart';
 import 'package:dart_nostr/nostr/model/event/event.dart';
 import 'package:let_him_cook/src/data/models/recipe.dart';
 
@@ -19,9 +21,7 @@ extension RecipeEvent on NostrEvent {
 
   List<String> get directions => content!.split('\n');
 
-  Map<String, String> get relatedRecipes => {
-    
-  };
+  Map<String, String> get relatedRecipes => {};
 
   String? _getTagValue(String key) {
     final tag = tags?.firstWhere((t) => t[0] == key, orElse: () => []);
@@ -61,5 +61,18 @@ extension RecipeEvent on NostrEvent {
       tools: tools,
       tags: hashTags,
     );
+  }
+
+  static NostrEvent fromJson(String json) {
+    final jsonMap = jsonDecode(json);
+
+    return NostrEvent(
+        content: jsonMap['content'],
+        createdAt: jsonMap['createdAt'],
+        id: jsonMap['id'],
+        kind: jsonMap['kind'],
+        pubkey: jsonMap['pubkey'],
+        sig: jsonMap['sig'],
+        tags: jsonMap['tags']);
   }
 }

@@ -2,6 +2,8 @@ import 'package:dart_nostr/dart_nostr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:let_him_cook/src/data/models/nostr_event.dart';
+import 'package:let_him_cook/src/data/models/tag.dart';
+import 'package:let_him_cook/src/data/repositories/tags_repository.dart';
 import 'package:let_him_cook/src/features/edit/providers/recipe_edit_provider.dart';
 import 'package:let_him_cook/src/features/edit/widgets/nutritional_info_edit.dart';
 import 'package:let_him_cook/src/features/recipe/widgets/images_combo_box.dart';
@@ -71,30 +73,52 @@ class RecipeEditScreen extends ConsumerWidget {
                     .removeImage(index),
               ),
               const SizedBox(height: 24),
-              TagsComboBox(
-                selectedTags: editState.tags,
-                onTagSelected: (newTag) => ref
-                    .read(recipeEditProvider(recipe).notifier)
-                    .addTag(newTag),
-                onTagRemoved: (index) => ref
-                    .read(recipeEditProvider(recipe).notifier)
-                    .removeTag(index),
-              ),
+              FutureBuilder<List<Tag>>(
+                  future: loadRecipeTags(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return TagsComboBox(
+                        allTags: snapshot.data!,
+                        selectedTags: editState.tags,
+                        onTagSelected: (newTag) => ref
+                            .read(recipeEditProvider(recipe).notifier)
+                            .addTag(newTag),
+                        onTagRemoved: (index) => ref
+                            .read(recipeEditProvider(recipe).notifier)
+                            .removeTag(index),
+                        placeholder:
+                            "Add a tag (e.g. 'desert', 'greek', 'italian')",
+                      );
+                    } else {
+                      return const CircularProgressIndicator();
+                    }
+                  }),
               const SizedBox(height: 16),
-              TagsComboBox(
-                selectedTags: editState.tags,
-                onTagSelected: (newTag) => ref
-                    .read(recipeEditProvider(recipe).notifier)
-                    .addTag(newTag),
-                onTagRemoved: (index) => ref
-                    .read(recipeEditProvider(recipe).notifier)
-                    .removeTag(index),
-              ),
+              FutureBuilder<List<Tag>>(
+                  future: loadDietaryRestrictionsTags(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return TagsComboBox(
+                        allTags: snapshot.data!,
+                        selectedTags: editState.dietaryRestrictions,
+                        onTagSelected: (newTag) => ref
+                            .read(recipeEditProvider(recipe).notifier)
+                            .addDietraryRestrictionTag(newTag),
+                        onTagRemoved: (index) => ref
+                            .read(recipeEditProvider(recipe).notifier)
+                            .removeDietaryRestriction(index),
+                        placeholder:
+                            "Add any dietary restrictions (e.g. 'vegan', 'gluten-free')",
+                      );
+                    } else {
+                      return const CircularProgressIndicator();
+                    }
+                  }),
               const SizedBox(height: 16),
               _buildTextField(
                 label: 'Brief Summary',
                 hint: 'A short description of the dish',
-                value: editState.summary!,
+                value: editState.summary ?? '',
                 controller: summaryController,
                 maxLines: 4,
                 onChanged: (val) => ref
@@ -153,6 +177,27 @@ class RecipeEditScreen extends ConsumerWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 16),
+              FutureBuilder<List<Tag>>(
+                  future: loadToolTags(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return TagsComboBox(
+                        allTags: snapshot.data!,
+                        selectedTags: editState.tools,
+                        onTagSelected: (newTag) => ref
+                            .read(recipeEditProvider(recipe).notifier)
+                            .addToolTag(newTag),
+                        onTagRemoved: (index) => ref
+                            .read(recipeEditProvider(recipe).notifier)
+                            .removeToolTag(index),
+                        placeholder:
+                            "Add any special kitchen tools (e.g. 'over', 'food processor')",
+                      );
+                    } else {
+                      return const CircularProgressIndicator();
+                    }
+                  }),
               const SizedBox(height: 16),
               const TabBar(
                 tabs: [
@@ -239,7 +284,7 @@ class RecipeEditScreen extends ConsumerWidget {
           hintText: hint,
           labelText: label,
         ),
-        onSubmitted: onChanged,
+        onChanged: onChanged,
         controller: controller,
       ),
     );

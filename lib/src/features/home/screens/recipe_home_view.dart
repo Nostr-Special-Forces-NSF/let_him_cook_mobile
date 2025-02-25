@@ -4,14 +4,16 @@ import 'package:let_him_cook/src/features/home/widgets/action_button.dart';
 import 'package:let_him_cook/src/features/home/widgets/expandable_fab.dart';
 import 'package:let_him_cook/src/features/import/recipe_import_screen.dart';
 import 'package:let_him_cook/src/features/home/widgets/recipe_grid_screen.dart';
+import 'package:let_him_cook/src/features/scan/recipe_ocr_screen.dart';
 import 'package:let_him_cook/src/features/user/screens/user_screen.dart';
 import 'package:let_him_cook/src/features/user/widgets/user_avatar.dart';
 import 'package:let_him_cook/src/settings/settings_view.dart';
 
 class RecipeHomeView extends StatelessWidget {
+  static const routeName = '/';
+
   const RecipeHomeView({super.key});
 
-  static const routeName = '/';
 
   @override
   Widget build(BuildContext context) {
@@ -24,8 +26,8 @@ class RecipeHomeView extends StatelessWidget {
             onPressed: () {
               Navigator.restorablePushNamed(context, SettingsView.routeName);
             },
-          ),            const SizedBox(width: 8),
-
+          ),
+          const SizedBox(width: 8),
           UserAvatar(() {
             Navigator.push(
               context,
@@ -53,11 +55,11 @@ class RecipeHomeView extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const RecipeImportScreen(),
+                  builder: (_) => const RecipeOcrScreen(),
                 ),
               )
             },
-            icon: const Icon(Icons.copy),
+            icon: const Icon(Icons.camera),
           ),
           ActionButton(
             onPressed: () => {

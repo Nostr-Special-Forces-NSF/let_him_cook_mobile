@@ -2,9 +2,12 @@ import 'package:dart_nostr/dart_nostr.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:let_him_cook/src/data/models/nostr_event.dart';
 import 'package:let_him_cook/src/data/models/recipe.dart';
+import 'package:let_him_cook/src/data/repositories/recipe_repository.dart';
 
 class RecipeEditNotifier extends StateNotifier<Recipe> {
-  RecipeEditNotifier(NostrEvent? recipe)
+  final RecipeRepository _recipeRepository;
+
+  RecipeEditNotifier(this._recipeRepository, NostrEvent? recipe)
       : super(recipe != null ? recipe.toRecipe() : Recipe.empty());
 
   void updateTitle(String val) => state = state.copyWith(title: val);
@@ -26,12 +29,6 @@ class RecipeEditNotifier extends StateNotifier<Recipe> {
     state = state.copyWith(nutrition: updatedNutrition);
   }
 
-  Future<void> publishRecipe() async {
-    state = state.copyWith(isPublishing: true);
-    //await NostrService.publishRecipe(state);
-    state = state.copyWith(isPublishing: false);
-  }
-
   removeTag(int index) {
     final newTags = List<String>.from(state.tags);
     newTags.removeAt(index);
@@ -40,5 +37,38 @@ class RecipeEditNotifier extends StateNotifier<Recipe> {
 
   removeImage(int index) {}
 
-  addTag(String newTag) {}
+  addTag(String newTag) {
+    if (state.tags.contains(newTag)) return;
+    state = state.copyWith(tags: [...state.tags, newTag]);
+  }
+
+  addDietraryRestrictionTag(String newTag) {
+    if (state.dietaryRestrictions.contains(newTag)) return;
+    state = state
+        .copyWith(dietaryRestrictions: [...state.dietaryRestrictions, newTag]);
+  }
+
+  removeDietaryRestriction(int index) {
+    final newTags = List<String>.from(state.dietaryRestrictions);
+    newTags.removeAt(index);
+    state = state.copyWith(dietaryRestrictions: newTags);
+  }
+
+  addToolTag(String newTag) {
+    if (state.tools.contains(newTag)) return;
+    state = state.copyWith(tools: [...state.tools, newTag]);
+  }
+
+  removeToolTag(int index) {
+    final newTags = List<String>.from(state.tools);
+    newTags.removeAt(index);
+    state = state.copyWith(tools: newTags);
+  }
+
+  Future<void> publishRecipe() async {
+    state = state.copyWith(isPublishing: true);
+    await _recipeRepository.publishRecipe(state);
+    //await NostrService.publishRecipe(state);
+    state = state.copyWith(isPublishing: false);
+  }
 }

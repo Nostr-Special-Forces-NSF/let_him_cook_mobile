@@ -6,6 +6,7 @@ import 'package:nip55/signer_app_info.dart';
 import 'package:nip55/signer_plugin.dart';
 
 class UserScreen extends ConsumerStatefulWidget {
+  
   const UserScreen({super.key});
 
   @override
