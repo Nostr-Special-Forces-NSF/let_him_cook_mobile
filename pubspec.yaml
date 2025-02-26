@@ -23,14 +23,20 @@ dependencies:
   html: ^0.15.5
   logger: ^2.5.0
   shared_preferences: ^2.5.2
-  nip55:
-    git:
-      url: https://github.com/chebizarro/flutter-signer-plugin.git
-      ref: v0.0.2
   markdown_widget: ^2.3.2+6
   markdown_toolbar: ^0.5.0
   flutter_scalable_ocr: ^2.2.1
   image_picker: ^1.1.2
+
+  nip44:
+    git:
+      url: https://github.com/chebizarro/dart-nip44.git
+      ref: master
+  nip55:
+    git:
+      url: https://github.com/chebizarro/flutter-signer-plugin.git
+      ref: v0.0.2
+
 
 dev_dependencies:
   flutter_test:

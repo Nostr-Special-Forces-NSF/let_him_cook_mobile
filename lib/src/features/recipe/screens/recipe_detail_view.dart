@@ -156,7 +156,7 @@ class RecipeDetailView extends ConsumerWidget {
                   }).toList(),
                 )
               : Image.network(
-                  recipe.images.first,
+                  recipe.images.isEmpty ? '' : recipe.images.first,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return const Center(child: Icon(Icons.broken_image));
@@ -315,7 +315,7 @@ class RecipeDetailView extends ConsumerWidget {
   // Ingredients tab content
   Widget _buildIngredientsTab() {
     List<String> ingredients = recipe.ingredients.entries
-        .map((entry) => '${entry.value} ${entry.key}')
+        .map((entry) => '${entry.key} ${entry.value}')
         .toList();
 
     return Padding(

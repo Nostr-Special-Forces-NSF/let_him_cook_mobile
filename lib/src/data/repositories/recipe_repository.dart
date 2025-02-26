@@ -15,9 +15,12 @@ class RecipeRepository {
   RecipeRepository(this._nostrService);
 
   void subscribeToRecipes() {
+    _subscription?.cancel();
+
     var filter = const NostrFilter(
       kinds: [35000],
     );
+    
     _subscription = _nostrService.subscribeToEvents(filter).listen((event) {
       _events[event.id!] = event;
       _eventStreamController.add(_events.values.toList());

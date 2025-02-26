@@ -8,7 +8,7 @@ extension RecipeEvent on NostrEvent {
   String get author => _getTagValue('author') ?? pubkey;
   List<String> get cuisine => _getTags('cuisine');
   List<String> get categories => _getTags('category');
-  Map<String, String> get ingredients => _getTagMap('ingredient');
+  Map<String, String> get ingredients => _getIngredients('ingredient');
   List<String> get tools => _getTags('tool');
   List<String> get images => _getTags('image');
   String? get prepTime => _getTagValue('prep_time');
@@ -41,6 +41,14 @@ extension RecipeEvent on NostrEvent {
     });
     return tagList != null ? Map.fromEntries(tagList) : {};
   }
+
+  Map<String, String> _getIngredients(String key) {
+    final tagList = tags?.where((t) => t[0] == key).map((l) {
+      return MapEntry(l[2], l[1]);
+    });
+    return tagList != null ? Map.fromEntries(tagList) : {};
+  }
+
 
   Recipe toRecipe() {
     return Recipe(

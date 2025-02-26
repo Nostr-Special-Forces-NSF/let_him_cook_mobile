@@ -115,7 +115,7 @@ class Recipe {
         ['alt', 'recipe:$title'],
         ...cuisine.map((e) => ['cuisine', e]),
         ...categories.map((e) => ['category', e]),
-        ...ingredients.entries.map((e) => ['ingredient', e.key, e.value]),
+        ...ingredients.entries.map((e) => ['ingredient', e.value, e.key]),
         ...tools.map((e) => ['tool', e]),
         ...images.map((e) => ['image', e]),
         ['prep_time', prepTime],

@@ -3,36 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:let_him_cook/src/data/models/nostr_event.dart';
 import 'package:let_him_cook/src/features/recipe/screens/recipe_detail_view.dart';
-import 'package:let_him_cook/src/features/recipe/notifiers/recipes_notifier.dart';
+import 'package:let_him_cook/src/shared/providers/recipes_providers.dart';
 
 class RecipeGridScreen extends ConsumerWidget {
   const RecipeGridScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final recipeAsyncValue = ref.watch(recipesProvider); // from your provider
+    final recipes = ref.watch(allRecipesProvider); // from your provider
 
-    return recipeAsyncValue.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, stack) => Center(child: Text('Error: $err')),
-      data: (recipes) {
-        if (recipes.isEmpty) {
-          return const Center(child: Text('No recipes found.'));
-        }
-        return GridView.builder(
-          padding: const EdgeInsets.all(8.0),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // 2 columns
-            childAspectRatio: 0.9, // Adjust to taste
-            crossAxisSpacing: 8.0,
-            mainAxisSpacing: 8.0,
-          ),
-          itemCount: recipes.length,
-          itemBuilder: (context, index) {
-            final recipe = recipes[index];
-            return RecipeCard(recipe: recipe);
-          },
-        );
+    return GridView.builder(
+      padding: const EdgeInsets.all(8.0),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2, // 2 columns
+        childAspectRatio: 0.9, // Adjust to taste
+        crossAxisSpacing: 8.0,
+        mainAxisSpacing: 8.0,
+      ),
+      itemCount: recipes.length,
+      itemBuilder: (context, index) {
+        final recipe = recipes[index];
+        return RecipeCard(recipe: recipe);
       },
     );
   }
