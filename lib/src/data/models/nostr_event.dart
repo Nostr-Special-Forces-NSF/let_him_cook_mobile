@@ -21,7 +21,20 @@ extension RecipeEvent on NostrEvent {
 
   List<String> get directions => content!.split('\n');
 
-  Map<String, String> get relatedRecipes => {};
+  List<String> get relatedRecipes => _getEmbeddedRecipes();
+
+  String? get address {
+    if (kind == 35000) {
+      final dTag = tags?.firstWhere(
+        (t) => t.isNotEmpty && t[0] == 'd',
+        orElse: () => [],
+      );
+      if (dTag != null && dTag.length > 1) {
+        return '$kind:$pubkey:${dTag[1]}';
+      }
+    }
+    return null;
+  }
 
   String? _getTagValue(String key) {
     final tag = tags?.firstWhere((t) => t[0] == key, orElse: () => []);
@@ -44,11 +57,21 @@ extension RecipeEvent on NostrEvent {
 
   Map<String, String> _getIngredients(String key) {
     final tagList = tags?.where((t) => t[0] == key).map((l) {
-      return MapEntry(l[2], l[1]);
+      if (l.length > 2) {
+        return MapEntry(l[2], l[1]);
+      } else {
+        return MapEntry(l[1], '');
+      }
     });
     return tagList != null ? Map.fromEntries(tagList) : {};
   }
 
+  List<String> _getEmbeddedRecipes() {
+    final tagList = tags
+        ?.where((t) => t[0] == 'a' && t[1].startsWith('35000:'))
+        .map((e) => e[1]);
+    return tagList != null ? tagList.toList() : [];
+  }
 
   Recipe toRecipe() {
     return Recipe(

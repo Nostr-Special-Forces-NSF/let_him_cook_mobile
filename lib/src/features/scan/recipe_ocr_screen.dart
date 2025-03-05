@@ -15,7 +15,8 @@ class RecipeOcrScreen extends StatefulWidget {
 
 class _RecipeOcrScreenState extends State<RecipeOcrScreen> {
   // For receiving the scanned text from the camera
-  final StreamController<String> _scannedTextController = StreamController<String>();
+  final StreamController<String> _scannedTextController =
+      StreamController<String>();
 
   // Basic camera toggles
   bool _torchOn = false;
@@ -29,6 +30,17 @@ class _RecipeOcrScreenState extends State<RecipeOcrScreen> {
   // Keys
   final GlobalKey<ScalableOCRState> _cameraKey = GlobalKey<ScalableOCRState>();
 
+  // Local variable to store the latest recognized text
+  String _latestScannedText = '';
+
+  // Recipe fields (very basic example)
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _ingredientsController = TextEditingController();
+  final TextEditingController _stepsController = TextEditingController();
+  final TextEditingController _prepTimeController = TextEditingController();
+  final TextEditingController _cookTimeController = TextEditingController();
+  final TextEditingController _servingsController = TextEditingController();
+
   @override
   void dispose() {
     _scannedTextController.close();
@@ -37,6 +49,7 @@ class _RecipeOcrScreenState extends State<RecipeOcrScreen> {
 
   /// Called whenever `ScalableOCR` returns new text.
   void _onTextScanned(String text) {
+    // Update the stream
     _scannedTextController.add(text);
   }
 
@@ -48,10 +61,9 @@ class _RecipeOcrScreenState extends State<RecipeOcrScreen> {
       setState(() {
         _loadedImage = File(pickedFile.path);
       });
-      // If you want to do OCR on the loaded image, you'd need to see if
-      // flutter_scalable_ocr can process a static file directly, or use another library.
-      // For demonstration, we'll do a placeholder:
-      _scannedTextController.add("Loaded image: ${pickedFile.path}\n(You could OCR this offline.)");
+      // For demonstration, add a placeholder text:
+      _scannedTextController.add(
+          "Loaded image: ${pickedFile.path}\n(You could OCR this offline.)");
     }
   }
 
@@ -91,6 +103,64 @@ class _RecipeOcrScreenState extends State<RecipeOcrScreen> {
     });
   }
 
+  /// Very naive parsing that looks for lines beginning with "Title:",
+  /// "Ingredients:", "Steps:", etc., and puts them into controllers.
+  /// Adapt as needed!
+  void _autoFillFieldsFromText(String rawText) {
+    final lines =
+        rawText.split('\n').map((e) => e.trim()).where((e) => e.isNotEmpty);
+
+    for (String line in lines) {
+      if (line.toLowerCase().startsWith("title:")) {
+        _titleController.text =
+            line.replaceFirst(RegExp(r'(?i)title:'), '').trim();
+      } else if (line.toLowerCase().startsWith("ingredients:")) {
+        _ingredientsController.text =
+            line.replaceFirst(RegExp(r'(?i)ingredients:'), '').trim();
+      } else if (line.toLowerCase().startsWith("steps:") ||
+          line.toLowerCase().startsWith("directions:")) {
+        _stepsController.text =
+            line.replaceFirst(RegExp(r'(?i)steps:|directions:'), '').trim();
+      } else if (line.toLowerCase().startsWith("prep time:")) {
+        _prepTimeController.text =
+            line.replaceFirst(RegExp(r'(?i)prep time:'), '').trim();
+      } else if (line.toLowerCase().startsWith("cook time:")) {
+        _cookTimeController.text =
+            line.replaceFirst(RegExp(r'(?i)cook time:'), '').trim();
+      } else if (line.toLowerCase().startsWith("servings:")) {
+        _servingsController.text =
+            line.replaceFirst(RegExp(r'(?i)servings:'), '').trim();
+      }
+    }
+  }
+
+  void _showRecipeSummary() {
+    final summary = '''
+Title: ${_titleController.text}
+Ingredients: ${_ingredientsController.text}
+Steps: ${_stepsController.text}
+Prep Time: ${_prepTimeController.text}
+Cook Time: ${_cookTimeController.text}
+Servings: ${_servingsController.text}
+''';
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Recipe Summary'),
+        content: SingleChildScrollView(
+          child: Text(summary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,7 +170,6 @@ class _RecipeOcrScreenState extends State<RecipeOcrScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // If we haven't loaded an image, show the camera widget
             if (_loadedImage == null) ...[
               if (!_loading)
                 ScalableOCR(
@@ -118,6 +187,7 @@ class _RecipeOcrScreenState extends State<RecipeOcrScreen> {
                   boxTopOff: 2.5,
                   boxHeight: MediaQuery.of(context).size.height / 3,
                   getRawData: (value) {
+                    // This returns the raw MLKit blocks, lines, etc. for debugging
                     inspect(value);
                   },
                   getScannedText: (value) {
@@ -125,7 +195,6 @@ class _RecipeOcrScreenState extends State<RecipeOcrScreen> {
                   },
                 )
               else
-                // placeholder loading container
                 Padding(
                   padding: const EdgeInsets.all(17.0),
                   child: Container(
@@ -141,7 +210,6 @@ class _RecipeOcrScreenState extends State<RecipeOcrScreen> {
                   ),
                 ),
             ] else ...[
-              // If an image is loaded, show the image
               Image.file(
                 _loadedImage!,
                 height: MediaQuery.of(context).size.height / 3,
@@ -149,14 +217,16 @@ class _RecipeOcrScreenState extends State<RecipeOcrScreen> {
               ),
             ],
 
-            // Show scanned or loaded text
+            // Listen to the OCR stream and keep the latest text in memory.
             StreamBuilder<String>(
               stream: _scannedTextController.stream,
               builder: (context, snapshot) {
+                // If there is new text, update _latestScannedText
                 final text = snapshot.data ?? '';
+                _latestScannedText = text;
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text("Detected text: $text"),
+                  child: Text("Detected text:\n$text"),
                 );
               },
             ),
@@ -192,10 +262,68 @@ class _RecipeOcrScreenState extends State<RecipeOcrScreen> {
                     child: const Text("Clear Loaded Image"),
                   )
               ],
+            ),
+
+            // A button to parse the recognized text into the fields
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  // Use the last scanned text
+                  _autoFillFieldsFromText(_latestScannedText);
+                },
+                child: const Text("Auto-Fill Fields from Detected Text"),
+              ),
+            ),
+
+            // A simple "recipe fields" form so user can refine
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  _buildTextField("Title", _titleController),
+                  _buildTextField("Ingredients", _ingredientsController,
+                      maxLines: 3),
+                  _buildTextField("Steps / Instructions", _stepsController,
+                      maxLines: 5),
+                  Row(
+                    children: [
+                      Expanded(
+                        child:
+                            _buildTextField("Prep Time", _prepTimeController),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child:
+                            _buildTextField("Cook Time", _cookTimeController),
+                      ),
+                    ],
+                  ),
+                  _buildTextField("Servings", _servingsController),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: _showRecipeSummary,
+                    child: const Text("Show Summary"),
+                  ),
+                ],
+              ),
             )
           ],
         ),
       ),
+    );
+  }
+
+  /// Helper to build a standard text field
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    int maxLines = 1,
+  }) {
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      decoration: InputDecoration(labelText: label),
     );
   }
 }

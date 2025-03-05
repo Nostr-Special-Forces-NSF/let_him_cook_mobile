@@ -6,6 +6,8 @@ import 'package:let_him_cook/src/data/models/nostr_event.dart';
 import 'package:let_him_cook/src/features/edit/screens/recipe_edit_screen.dart';
 import 'package:let_him_cook/src/features/recipe/widgets/nutritional_info_view.dart';
 import 'package:let_him_cook/src/features/user/notifiers/user_notifier.dart';
+import 'package:let_him_cook/src/shared/providers/recipes_providers.dart';
+import 'package:let_him_cook/src/shared/widgets/recipe_card_widget.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 
 class RecipeDetailView extends ConsumerWidget {
@@ -17,6 +19,7 @@ class RecipeDetailView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userState = ref.watch(userNotifierProvider);
     final isLoggedIn = true; //userState.pubkey != null;
+    final embedded = ref.watch(embeddedRecipesProvider(recipe.relatedRecipes));
 
     return DefaultTabController(
       length: 2, // We have 2 tabs: Ingredients & Directions
@@ -69,6 +72,31 @@ class RecipeDetailView extends ConsumerWidget {
             children: [
               // -- Recipe Header / Summary
               _buildRecipeHeader(context),
+
+              // -- Embedded Recipes
+              if (recipe.relatedRecipes.isNotEmpty)
+                Text(
+                  'Related Recipes',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  crossAxisSpacing: 8.0,
+                  mainAxisSpacing: 8.0,
+                  childAspectRatio: 0.75,
+                ),
+                itemCount: embedded.length,
+                itemBuilder: (context, index) {
+                  final recipe = embedded[index];
+                  return RecipeCard(recipe: recipe);
+                },
+              ),
 
               // -- Tabs: Ingredients / Directions
               const TabBar(
@@ -228,6 +256,17 @@ class RecipeDetailView extends ConsumerWidget {
               NutritionalInfoView(
                 data: recipe.nutrition,
               ),
+
+              const SizedBox(height: 16),
+
+              if (recipe.tools.isNotEmpty)
+                Text(
+                  'Tools',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ...recipe.tools.map((t) => Text(t))
             ],
           ),
         ),
@@ -263,7 +302,7 @@ class RecipeDetailView extends ConsumerWidget {
 
     // If no data present, return nothing
     if (columns.isEmpty) {
-      return const SizedBox.shrink(); // or return Container()
+      return const SizedBox.shrink();
     }
 
     // Otherwise, wrap them in a single "large chip" or card-like container
@@ -341,7 +380,7 @@ class RecipeDetailView extends ConsumerWidget {
                 final ingredient = ingredients[index];
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: Text(ingredient!),
+                  child: Text(ingredient),
                 );
               },
             ),
